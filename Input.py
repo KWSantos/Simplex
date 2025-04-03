@@ -2,7 +2,6 @@ import re
 
 exp_number = re.compile("^[0-9]+$")
 
-
 def isNumber(number) -> bool:
     return bool(exp_number.match(number))
 
@@ -21,10 +20,12 @@ class Input():
     def read(self):
         with open(self.file, 'r') as f:
             lines = f.readlines()
-            self.num_constraints = len(lines) - 1
+            self.num_constraints = sum(1 for line in lines[1:] if '>=' in line or '<=' in line)
             f.seek(0)
 
             count_x = 0
+            slack_pos = 0
+
             for i, line in enumerate(f):
                 separete_words = line.split()
                 if not separete_words:
@@ -63,7 +64,7 @@ class Input():
                             next_coef = -1
                         elif word == '+':
                             next_coef = 1
-                        elif word in (">=", "<=", "=="):
+                        elif word in (">=", "<=", "="):
                             inequality = word
                         elif word[0] == 'x':
                             aux.append(1 * next_coef)
@@ -94,15 +95,17 @@ class Input():
 
                     self.b.append(independent_term)
 
-                    slack_vars = [0] * self.num_constraints
+                    if inequality in ('>=', '<='):
+                        slack_vars = [0] * self.num_constraints
+                        if inequality == '<=':
+                            slack_vars[slack_pos] = -1
+                        else:
+                            slack_vars[slack_pos] = 1
+                        slack_pos += 1
+                        full_row = aux + slack_vars
+                    else:
+                        full_row = aux + [0] * self.num_constraints
 
-                    if inequality == ">=":
-                        slack_vars[i - 1] = -1
-                    elif inequality == "<=":
-                        slack_vars[i - 1] = 1
-                    elif inequality == "==":
-                        slack_vars[i - 1] = 0
-                    full_row = aux + slack_vars
                     self.a.append(full_row)
 
     def getInputs(self):

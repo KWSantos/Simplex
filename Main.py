@@ -3,8 +3,13 @@ from Matrix_Utils import matrix_product, sarrus, determinant, inverse_matrix
 
 input = Input("Inputs/inputs1.txt")
 
-# input.read()
+input.read()
 
-matriz_a = [[1, 2, 3], [0, 1, 0], [1, 0, 2]]
+c, a, b = input.getInputs()
 
-print(inverse_matrix(matriz_a))
+print(c)
+print(a)
+print(b)
+
+# matriz_a = [[1, 2, 3], [0, 1, 0], [1, 0, 2]]
+# print(inverse_matrix(matriz_a))

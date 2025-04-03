@@ -13,7 +13,6 @@ def matrix_product(a, b):
         c.append(row)
     return c
 
-
 def determinant(matriz):
     n = len(matriz)
     m = len(matriz[0])
@@ -41,7 +40,6 @@ def determinant(matriz):
 
     return det
 
-
 def sarrus(a):
     if len(a) != 3 or any(len(row) != 3 for row in a):
         return None
@@ -55,7 +53,6 @@ def sarrus(a):
            a[0][1] * a[1][0] * a[2][2])
 
     return pos - neg
-
 
 def inverse_matrix(a):
 
