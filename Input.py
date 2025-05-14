@@ -22,13 +22,14 @@ class Input():
         self.a = []
         self.b = []
         self.opt = ""
+        self.necessity_fase1 = False
         self.num_constraints = 0
         self.num_vars = 0
 
     def read(self):
         with open(self.file, 'r') as f:
             lines = f.readlines()
-            self.num_constraints = sum(1 for line in lines[1:] if '>=' in line or '<=' in line or '=' in line)
+            self.num_constraints = sum(1 for line in lines[1:] if '>=' in line or '<=' in line or '>' in line or '<' in line)
             f.seek(0)
 
             all_vars = set()
@@ -88,7 +89,7 @@ class Input():
                             next_coef = -1
                         elif word == '+':
                             next_coef = 1
-                        elif word in (">=", "<=", "="):
+                        elif word in (">=", "<=", "=", ">", "<"):
                             inequality = word
                             found_inequality = True
                         elif 'x' in word:
@@ -112,11 +113,14 @@ class Input():
 
                     self.b.append(independent_term)
 
-                    if inequality in ('>=', '<='):
+                    if inequality in (">", ">=", "="):
+                        self.necessity_fase1 = True
+
+                    if inequality in ('>=', '<=', '>', '<'):
                         slack_vars = [0] * self.num_constraints
-                        if inequality == '<=':
+                        if inequality == '<=' or inequality == '<':
                             slack_vars[slack_pos] = 1
-                        else:  # '>='
+                        else:  # '>=' '>'
                             slack_vars[slack_pos] = -1
                         slack_pos += 1
                         full_row = aux + slack_vars
@@ -126,6 +130,13 @@ class Input():
                     self.a.append(full_row)
 
     def getInputs(self):
+        if self.opt == 'max':
+            for i in range(self.num_vars):
+                self.c[i] += -1
+        for i in range(len(self.b)):
+            if self.b[i] < 0:
+                for j in range(len(self.a[i])):
+                    self.a[i][j] *= -1
         return self.c, self.a, self.b
 
     def getNumVars(self):

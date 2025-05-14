@@ -74,7 +74,44 @@ def det_step_var_to_leave_the_base(y, xb, xn, base_new, xb_aprox):
     print(xn)
     print(xb)
     return xb, xn
- 
+
+def fase1(a, b, c, num_vars, num_constraints):
+    obj_func = [0] * num_vars
+    obj_func.extend([1] * num_constraints)
+    xb = [i+1 for i in range(num_vars, num_vars + num_constraints)]
+    xn = [i+1 for i in range(num_vars)]
+    print(xb)
+    print(xn)
+    print(obj_func)
+    xb, xn, bx, nx, cb, cn = generateBxNx(num_vars, num_constraints, a, c, b_xs = xb, n_xs = xn)
+    while True:
+        print("Básica e não-básica")
+        print(f"Matriz B básica: {bx}")
+        print(f"Matriz N não-básica: {nx}")
+        print(f"Vetor de indices básicos: {xb}")
+        print(f"Vetor de indices não-básicos: {xn}")
+        print()
+        bx = Matriz(bx)
+        nx = Matriz(nx)
+        cb = Matriz(cb)
+        cn = Matriz(cn)
+        xb_aprox, xn_aprox = basic_solution_calc(bx, b)
+        print("Xb e Xn aproximados:")
+        print(xb_aprox.mat)
+        print(xn_aprox)
+        print()
+        cnx = relative_cost(bx, nx, cb, cn)
+        min_cnx = min(cnx)
+        if min_cnx >= 0:
+            break
+        else:
+            index_min = cnx.index(min_cnx)
+            base_new = xn[index_min]
+            print("Entra na base:")
+            print(base_new)
+            y = simplex_direction_calc(nx, bx, index_min)
+
+
 def simplex(a, b, c, num_vars, num_constraints):
     xb, xn, bx, nx, cb, cn = generateBxNx(num_vars, num_constraints, a, c)
     while True:
@@ -97,7 +134,6 @@ def simplex(a, b, c, num_vars, num_constraints):
         min_cnx = min(cnx)
         if min_cnx >= 0:
             z = sum([xb_aprox.mat[i][0] * cb.mat[0][i] for i in range(len(cb.mat[0]))])
-            print(z)
             return z
         else:
             index_min = cnx.index(min_cnx)
@@ -121,6 +157,7 @@ def main():
     num_vars, num_constraints = input.getNumVars()
     b = Matriz(b)
     z = simplex(a, b, c, num_vars, num_constraints)
+    print(z)
     
 if __name__ == '__main__':
     main()
