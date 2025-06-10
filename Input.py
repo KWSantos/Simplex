@@ -113,18 +113,18 @@ class Input():
 
                     self.b.append(independent_term)
 
-                    if inequality in (">", ">=", "="):
+                    if inequality in (">", ">=", "=") and independent_term >= 0:
                         self.necessity_fase1 = True
 
                     if inequality in ('>=', '<=', '>', '<'):
                         slack_vars = [0] * self.num_constraints
                         if inequality == '<=' or inequality == '<':
                             slack_vars[slack_pos] = 1
-                        else:  # '>=' '>'
+                        else:
                             slack_vars[slack_pos] = -1
                         slack_pos += 1
                         full_row = aux + slack_vars
-                    else:  # '='
+                    else:
                         full_row = aux + [0] * self.num_constraints
 
                     self.a.append(full_row)
@@ -132,9 +132,10 @@ class Input():
     def getInputs(self):
         if self.opt == 'max':
             for i in range(self.num_vars):
-                self.c[i] += -1
+                self.c[i] *= -1
         for i in range(len(self.b)):
             if self.b[i] < 0:
+                self.b[i] *= -1
                 for j in range(len(self.a[i])):
                     self.a[i][j] *= -1
         return self.c, self.a, self.b
