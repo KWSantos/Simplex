@@ -146,7 +146,6 @@ def simplex_direction_calc(nx, bx, index_min):
         print(f"ERRO ao calcular a direção simplex: {e}")
         raise InvalidInputError("Erro de dimensão ou índice inválido no cálculo da direção y.")
 
-
 def det_step_var_to_leave_the_base(y, xb, xn, entering_var, xb_approximation):
     """
     Determina a variável que sai da base (critério da razão).
@@ -283,7 +282,7 @@ def fase2(a, b, c, num_vars, num_constraints, xb_initial=None, xn_initial=None):
                     if z == 0:
                         raise InvalidInputError("Problema insolusionável")
                     print("\n--- Solução Ótima Encontrada (Base Fixa) ---")
-                    return z, xb_approximation.mat
+                    return z, xb_approximation.mat, current_xb_indices
 
                 index_min_entering = current_relative_costs.index(min_relative_cost)
 
@@ -369,7 +368,7 @@ def fase2(a, b, c, num_vars, num_constraints, xb_initial=None, xn_initial=None):
                             if z_loop == 0:
                                 raise InvalidInputError("Problema insolusionável")
                             print(f"\n--- Solução Ótima Encontrada com Base {temp_xb_indices} ---")
-                            return z_loop, xb_approximation.mat
+                            return z_loop, xb_approximation.mat, current_xb_indices
 
                         index_min_entering_loop = current_relative_costs.index(min_relative_cost)
 
@@ -399,7 +398,7 @@ def fase2(a, b, c, num_vars, num_constraints, xb_initial=None, xn_initial=None):
 
 def main():
     try:
-        input_obj = Input("Inputs/5_7-c.txt")
+        input_obj = Input("Inputs/5_7-q.txt")
         input_obj.read()
         c, a, b = input_obj.getInputs()
 
@@ -422,16 +421,20 @@ def main():
             xn_final = [i for i in xn_final if i not in artificial_vars]
 
         b_mat = Matriz(b)
-        z, res = fase2(a, b_mat, c, num_vars, num_constraints, xb_final, xn_final)
+        z, xb_vals, xb_indices = fase2(a, b_mat, c, num_vars, num_constraints, xb_final, xn_final)
 
+        coef_result = 1
         if input_obj.opt == "max":
-            z *= -1
+            coef_result = -1
         print("\n======================================")
-        print(f"VALOR ÓTIMO (Z): {round(z, 2)}")
+        print(f"VALOR ÓTIMO (Z): {coef_result*round(z, 2)}")
         print("======================================")
         print("\n======================================")
-        for i in range(num_vars):
-            print(f"X{i+1}: {-1*c[i]*res[i][0]}")
+        vars_indices = [i for i in range(1, num_vars+1)]
+        for i in range(len(xb_indices)):
+            if xb_indices[i] in vars_indices:
+                print(f"X{xb_indices[i]}: {coef_result*xb_vals[i][0]}")
+
         print("======================================")
     except FileNotFoundError:
         print("ERRO CRÍTICO: O arquivo de entrada não foi encontrado.")
